@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/wailantirajoh/gorilla/app/model"
+import "github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
 
 type UserRepository interface {
 	GetUsers() []model.User

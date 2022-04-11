@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/wailantirajoh/gorilla/app/model"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

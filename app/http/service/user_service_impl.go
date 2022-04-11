@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/wailantirajoh/gorilla/app/http/repository"
-	"github.com/wailantirajoh/gorilla/app/model"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/repository"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
 )
 
 func NewUserService(userRepository *repository.UserRepository) UserService {

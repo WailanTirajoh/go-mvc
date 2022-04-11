@@ -1,4 +1,4 @@
-module github.com/wailantirajoh/gorilla
+module github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture
 
 go 1.18
 

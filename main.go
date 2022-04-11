@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/wailantirajoh/gorilla/app/http/controller"
-	"github.com/wailantirajoh/gorilla/app/http/repository"
-	"github.com/wailantirajoh/gorilla/app/http/service"
-	"github.com/wailantirajoh/gorilla/config"
-	"github.com/wailantirajoh/gorilla/router"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/controller"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/repository"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/service"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/config"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/router"
 )
 
 func main() {

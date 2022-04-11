@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/service"
 	"github.com/gorilla/mux"
-	"github.com/wailantirajoh/gorilla/app/http/service"
 )
 
 func NewUserController(userService *service.UserService) UserController {
