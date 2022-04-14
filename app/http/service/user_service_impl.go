@@ -23,9 +23,14 @@ func (userService *UserServiceImpl) GetUsers() []model.User {
 	return responses
 }
 
-func (userService *UserServiceImpl) GetUser(userId string) model.User {
-	user := userService.UserRepository.GetUser(userId)
-	return user
+func (userService *UserServiceImpl) GetUser(userId string) (model.User, error) {
+	user, err := userService.UserRepository.GetUser(userId)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
 
 func (userService *UserServiceImpl) StoreUser(rbody io.ReadCloser) model.User {
@@ -38,19 +43,27 @@ func (userService *UserServiceImpl) StoreUser(rbody io.ReadCloser) model.User {
 	return user
 }
 
-func (userService *UserServiceImpl) UpdateUser(userId string, rbody io.ReadCloser) model.User {
-	user := userService.UserRepository.GetUser(userId)
+func (userService *UserServiceImpl) UpdateUser(userId string, rbody io.ReadCloser) (model.User, error) {
+	user, err := userService.UserRepository.GetUser(userId)
+
+	if err != nil {
+		return user, err
+	}
 
 	json.NewDecoder(rbody).Decode(&user)
 	userService.UserRepository.UpdateUser(&user)
 
-	return user
+	return user, nil
 }
 
-func (userService *UserServiceImpl) DeleteUser(userId string) string {
-	user := userService.UserRepository.GetUser(userId)
+func (userService *UserServiceImpl) DeleteUser(userId string) (string, error) {
+	user, err := userService.UserRepository.GetUser(userId)
+
+	if err != nil {
+		return "", err
+	}
 
 	userService.UserRepository.DeleteUser(&user)
 
-	return "User deleted successfully!"
+	return "User deleted successfully!", nil
 }

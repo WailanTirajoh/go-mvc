@@ -23,12 +23,14 @@ func (userRepository *UserRepositoryImpl) GetUsers() []model.User {
 	return users
 }
 
-func (userRepository *UserRepositoryImpl) GetUser(userId string) model.User {
+func (userRepository *UserRepositoryImpl) GetUser(userId string) (model.User, error) {
 	var user model.User
 
-	userRepository.Collection.First(&user, userId)
+	if err := userRepository.Collection.First(&user, userId).Error; err != nil {
+		return user, err
+	}
 
-	return user
+	return user, nil
 }
 
 func (userRepository *UserRepositoryImpl) StoreUser(user *model.User) {

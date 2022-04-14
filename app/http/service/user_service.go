@@ -8,8 +8,8 @@ import (
 
 type UserService interface {
 	GetUsers() []model.User
-	GetUser(userId string) model.User
+	GetUser(userId string) (model.User, error)
 	StoreUser(rbody io.ReadCloser) model.User
-	UpdateUser(userId string, rbody io.ReadCloser) model.User
-	DeleteUser(userId string) string
+	UpdateUser(userId string, rbody io.ReadCloser) (model.User, error)
+	DeleteUser(userId string) (string, error)
 }
