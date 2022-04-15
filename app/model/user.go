@@ -2,28 +2,43 @@ package model
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint           `json:"id" gorm:"primarykey"`
-	FirstName string         `json:"first_name" gorm:"not null" sqlType:"text"`
-	LastName  string         `json:"last_name" gorm:"not null" sqlType:"text"`
-	Email     string         `json:"email" gorm:"uniqueIndex:email;index;not null"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	ID        uint      `json:"id" gorm:"primarykey"`
+	FirstName string    `json:"first_name" gorm:"not null;type:varchar(191)"`
+	LastName  string    `json:"last_name" gorm:"not null;type:varchar(191)"`
+	Email     string    `json:"email" gorm:"uniqueIndex:email;index;not null"`
+	Password  string    `json:"password" gorm:"not null;type:varchar(191)"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type StoreUserRequest struct {
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required"`
+}
+
+type UpdateUserRequest struct {
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+	// Email     string `json:"email" validate:"required"`
+}
+
+type UserResponse struct {
+	ID        uint   `json:"id"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
-type UpdateUserRequest struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+func (u *User) Response() UserResponse {
+	return UserResponse{
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+	}
 }
