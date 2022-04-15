@@ -18,13 +18,15 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 
 	// Setup Service
+	authService := service.NewAuthService(&userRepository)
 	userService := service.NewUserService(&userRepository)
 
 	// Setup Controller
+	authController := controller.NewAuthController(&authService)
 	userController := controller.NewUserController(&userService)
 
 	// Setup Router
-	r := router.Setup(&userController)
+	r := router.Setup(&userController, &authController)
 
 	// Start App
 	log.Fatal(http.ListenAndServe(":9000", r))

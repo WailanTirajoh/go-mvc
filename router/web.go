@@ -7,6 +7,7 @@ import (
 
 func Setup(
 	userController *controller.UserController,
+	authController *controller.AuthContoroller,
 ) *echo.Echo {
 	e := echo.New()
 	e.GET("/users", userController.Index)
@@ -14,6 +15,8 @@ func Setup(
 	e.POST("/users", userController.Store)
 	e.PUT("/users/:id", userController.Update)
 	e.DELETE("/users/:id", userController.Destroy)
+
+	e.POST("/login", authController.Login)
 
 	return e
 }
