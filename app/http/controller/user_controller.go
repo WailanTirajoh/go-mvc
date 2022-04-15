@@ -6,7 +6,7 @@ import (
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/service"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func NewUserController(userService *service.UserService) UserController {

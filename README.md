@@ -3,7 +3,7 @@
 Opensource Package:
 - GORM
 - VIPER
-- GORILLA MUX
+- ECHO
 - MYSQL
 
 ## Instalation Step

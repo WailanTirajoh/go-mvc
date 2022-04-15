@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func Setup(
