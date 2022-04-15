@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
 	"gorm.io/gorm"
 )
 
@@ -15,32 +15,32 @@ type UserRepositoryImpl struct {
 	Collection *gorm.DB
 }
 
-func (userRepository *UserRepositoryImpl) GetUsers() []model.User {
+func (ur *UserRepositoryImpl) GetUsers() []model.User {
 	var users []model.User
 
-	userRepository.Collection.Find(&users)
+	ur.Collection.Find(&users)
 
 	return users
 }
 
-func (userRepository *UserRepositoryImpl) GetUser(userId string) (model.User, error) {
+func (ur *UserRepositoryImpl) GetUser(userId string) (model.User, error) {
 	var user model.User
 
-	if err := userRepository.Collection.First(&user, userId).Error; err != nil {
+	if err := ur.Collection.First(&user, userId).Error; err != nil {
 		return user, err
 	}
 
 	return user, nil
 }
 
-func (userRepository *UserRepositoryImpl) StoreUser(user *model.User) {
-	userRepository.Collection.Create(&user)
+func (ur *UserRepositoryImpl) StoreUser(user *model.User) error {
+	return ur.Collection.Create(&user).Error
 }
 
-func (userRepository *UserRepositoryImpl) UpdateUser(user *model.User) {
-	userRepository.Collection.Save(&user)
+func (ur *UserRepositoryImpl) UpdateUser(user *model.User) error {
+	return ur.Collection.Save(&user).Error
 }
 
-func (userRepository *UserRepositoryImpl) DeleteUser(user *model.User) {
-	userRepository.Collection.Delete(user)
+func (ur *UserRepositoryImpl) DeleteUser(user *model.User) error {
+	return ur.Collection.Delete(user).Error
 }

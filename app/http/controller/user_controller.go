@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/helper"
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/service"
-	"github.com/gorilla/mux"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/service"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
+	"github.com/labstack/echo"
 )
 
 func NewUserController(userService *service.UserService) UserController {
@@ -19,71 +19,67 @@ type UserController struct {
 	UserService service.UserService
 }
 
-func (userController *UserController) Route(router *mux.Router) {
-	router.HandleFunc("/users", userController.Index).Methods("GET")
-	router.HandleFunc("/users/{id}", userController.Show).Methods("GET")
-	router.HandleFunc("/users", userController.Store).Methods("POST")
-	router.HandleFunc("/users/{id}", userController.Update).Methods("PUT")
-	router.HandleFunc("/users/{id}", userController.Destroy).Methods("DELETE")
-}
-
-func (userController *UserController) Index(writter http.ResponseWriter, request *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
+func (userController *UserController) Index(c echo.Context) (err error) {
 	users := userController.UserService.GetUsers()
 
-	json.NewEncoder(writter).Encode(helper.SuccessResponse(users))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(users))
 }
 
-func (userController *UserController) Show(writter http.ResponseWriter, request *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
-	params := mux.Vars(request)
-	user, err := userController.UserService.GetUser(params["id"])
+func (userController *UserController) Show(c echo.Context) (err error) {
+	user, err := userController.UserService.GetUser(c.Param("id"))
 
 	if err != nil {
-		writter.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(writter).Encode(helper.ErrorResponse(err.Error()))
-		return
+		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
 	}
 
-	json.NewEncoder(writter).Encode(helper.SuccessResponse(user))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(user))
 }
 
-func (userController *UserController) Store(writter http.ResponseWriter, request *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
-	user := userController.UserService.StoreUser(request.Body)
-
-	json.NewEncoder(writter).Encode(helper.SuccessResponse(user))
-}
-
-func (userController *UserController) Update(writter http.ResponseWriter, request *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
-	params := mux.Vars(request)
-	user, err := userController.UserService.UpdateUser(params["id"], request.Body)
-
-	if err != nil {
-		writter.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(writter).Encode(helper.ErrorResponse(err.Error()))
-		return
+func (userController *UserController) Store(c echo.Context) (err error) {
+	userRequest := new(model.StoreUserRequest)
+	if err = c.Bind(&userRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	json.NewEncoder(writter).Encode(helper.SuccessResponse(user))
-}
-
-func (userController *UserController) Destroy(writter http.ResponseWriter, request *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
-	params := mux.Vars(request)
-	message, err := userController.UserService.DeleteUser(params["id"])
-
-	if err != nil {
-		writter.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(writter).Encode(helper.ErrorResponse(err.Error()))
-		return
+	user := model.User{
+		FirstName: userRequest.FirstName,
+		LastName:  userRequest.LastName,
+		Email:     userRequest.Email,
 	}
 
-	json.NewEncoder(writter).Encode(helper.SuccessResponse(message))
+	if err = userController.UserService.StoreUser(&user); err != nil {
+		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, helper.SuccessResponse(user))
+}
+
+func (userController *UserController) Update(c echo.Context) (err error) {
+	userRequest := new(model.UpdateUserRequest)
+	if err = c.Bind(&userRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	user := model.User{
+		FirstName: userRequest.FirstName,
+		LastName:  userRequest.LastName,
+		Email:     userRequest.Email,
+	}
+
+	if err = userController.UserService.UpdateUser(c.Param("id"), &user); err != nil {
+		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, helper.SuccessResponse(user))
+}
+
+func (userController *UserController) Destroy(c echo.Context) (err error) {
+	if err := userController.UserService.DeleteUser(c.Param("id")); err != nil {
+		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
+		"Message": "User deleted successfully",
+	}))
+
 }

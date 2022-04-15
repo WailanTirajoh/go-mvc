@@ -1,11 +1,10 @@
 package service
 
 import (
-	"encoding/json"
-	"io"
+	"time"
 
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/http/repository"
-	"github.com/WailanTirajoh/go-simple-clean-architecture/go-simple-clean-architecture/app/model"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
 )
 
 func NewUserService(userRepository *repository.UserRepository) UserService {
@@ -18,13 +17,13 @@ type UserServiceImpl struct {
 	UserRepository repository.UserRepository
 }
 
-func (userService *UserServiceImpl) GetUsers() []model.User {
-	responses := userService.UserRepository.GetUsers()
+func (ur *UserServiceImpl) GetUsers() []model.User {
+	responses := ur.UserRepository.GetUsers()
 	return responses
 }
 
-func (userService *UserServiceImpl) GetUser(userId string) (model.User, error) {
-	user, err := userService.UserRepository.GetUser(userId)
+func (ur *UserServiceImpl) GetUser(userId string) (model.User, error) {
+	user, err := ur.UserRepository.GetUser(userId)
 
 	if err != nil {
 		return user, err
@@ -33,37 +32,30 @@ func (userService *UserServiceImpl) GetUser(userId string) (model.User, error) {
 	return user, nil
 }
 
-func (userService *UserServiceImpl) StoreUser(rbody io.ReadCloser) model.User {
-	var user model.User
-
-	json.NewDecoder(rbody).Decode(&user)
-
-	userService.UserRepository.StoreUser(&user)
-
-	return user
+func (ur *UserServiceImpl) StoreUser(user *model.User) error {
+	return ur.UserRepository.StoreUser(user)
 }
 
-func (userService *UserServiceImpl) UpdateUser(userId string, rbody io.ReadCloser) (model.User, error) {
-	user, err := userService.UserRepository.GetUser(userId)
+func (ur *UserServiceImpl) UpdateUser(userId string, user *model.User) error {
+	tuser, err := ur.UserRepository.GetUser(userId)
+
+	user.ID = tuser.ID
+	user.CreatedAt = tuser.CreatedAt
+	user.UpdatedAt = time.Now()
 
 	if err != nil {
-		return user, err
+		return err
 	}
 
-	json.NewDecoder(rbody).Decode(&user)
-	userService.UserRepository.UpdateUser(&user)
-
-	return user, nil
+	return ur.UserRepository.UpdateUser(user)
 }
 
-func (userService *UserServiceImpl) DeleteUser(userId string) (string, error) {
-	user, err := userService.UserRepository.GetUser(userId)
+func (ur *UserServiceImpl) DeleteUser(userId string) error {
+	user, err := ur.UserRepository.GetUser(userId)
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	userService.UserRepository.DeleteUser(&user)
-
-	return "User deleted successfully!", nil
+	return ur.UserRepository.DeleteUser(&user)
 }

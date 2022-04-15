@@ -1,13 +1,19 @@
 package router
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
+	"github.com/labstack/echo"
 )
 
-func Setup() *mux.Router {
-	r := mux.NewRouter()
+func Setup(
+	userController *controller.UserController,
+) *echo.Echo {
+	e := echo.New()
+	e.GET("/users", userController.Index)
+	e.GET("/users/:id", userController.Show)
+	e.POST("/users", userController.Store)
+	e.PUT("/users/:id", userController.Update)
+	e.DELETE("/users/:id", userController.Destroy)
 
-	// init more routes here
-
-	return r
+	return e
 }
