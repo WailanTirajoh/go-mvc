@@ -32,6 +32,9 @@ type (
 
 		// To login
 		LoginUser(loginRequest *model.LoginRequest) (model.User, error)
+
+		// To update user key after login
+		UpdateUserKey(user *model.User, key string) error
 	}
 
 	UserRepositoryImpl struct {
@@ -39,7 +42,6 @@ type (
 	}
 )
 
-// To init new user repository
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &UserRepositoryImpl{
 		Collection: db,
@@ -98,4 +100,10 @@ func (ur *UserRepositoryImpl) LoginUser(loginRequest *model.LoginRequest) (model
 	}
 
 	return user, nil
+}
+
+func (ur *UserRepositoryImpl) UpdateUserKey(user *model.User, key string) error {
+	user.Key = key
+
+	return ur.Collection.Save(&user).Error
 }

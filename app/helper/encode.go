@@ -5,9 +5,13 @@ import (
 	"strings"
 )
 
-func Base64StdEncoding(data string) string {
-	base64str := base64.StdEncoding.EncodeToString([]byte(data))
+func Base64StdEncoding(s string) string {
+	base64str := base64.StdEncoding.EncodeToString([]byte(s))
 	return cleanUp(base64str)
+}
+
+func Base64StdDecoding(s string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(s)
 }
 
 func cleanUp(s string) string {

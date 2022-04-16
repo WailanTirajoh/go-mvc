@@ -13,7 +13,6 @@ type UserController struct {
 	UserService service.UserService
 }
 
-// To initialize user controller
 func NewUserController(userService *service.UserService) UserController {
 	return UserController{
 		UserService: *userService,

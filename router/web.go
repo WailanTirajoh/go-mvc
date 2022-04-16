@@ -17,6 +17,7 @@ func Setup(
 	e.DELETE("/users/:id", userController.Destroy)
 
 	e.POST("/login", authController.Login)
+	e.POST("/logout", authController.Logout)
 
 	return e
 }

@@ -9,4 +9,8 @@ type (
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required"`
 	}
+
+	LogoutRequest struct {
+		Token string `json:"token" validate:"required"`
+	}
 )
