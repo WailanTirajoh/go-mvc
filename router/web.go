@@ -12,20 +12,20 @@ func Setup(
 ) *echo.Echo {
 	e := echo.New()
 
-	auth := e.Group("/v1")
+	authRoute := e.Group("/v1")
 	{
-		auth.Use(middleware.Authenticate)
-		auth.GET("/users", userController.Index)
-		auth.GET("/users/:id", userController.Show)
-		auth.POST("/users", userController.Store)
-		auth.PUT("/users/:id", userController.Update)
-		auth.DELETE("/users/:id", userController.Destroy)
-		auth.POST("/logout", authController.Logout)
+		authRoute.Use(middleware.Authenticate)
+		authRoute.GET("/users", userController.Index)
+		authRoute.GET("/users/:id", userController.Show)
+		authRoute.POST("/users", userController.Store)
+		authRoute.PUT("/users/:id", userController.Update)
+		authRoute.DELETE("/users/:id", userController.Destroy)
+		authRoute.POST("/logout", authController.Logout)
 	}
 
-	guest := e.Group("/v1")
+	guestRoute := e.Group("/v1")
 	{
-		guest.POST("/login", authController.Login)
+		guestRoute.POST("/login", authController.Login)
 	}
 
 	return e

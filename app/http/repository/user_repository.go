@@ -38,72 +38,87 @@ type (
 	}
 
 	UserRepositoryImpl struct {
-		Collection *gorm.DB
+		Db *gorm.DB
 	}
 )
 
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &UserRepositoryImpl{
-		Collection: db,
+		Db: db,
 	}
 }
 
-func (ur *UserRepositoryImpl) GetUsers() []model.User {
+func (userRepository *UserRepositoryImpl) GetUsers() []model.User {
 	var users []model.User
-
-	ur.Collection.Find(&users)
-
+	userRepository.Db.Find(&users)
 	return users
 }
 
-func (ur *UserRepositoryImpl) GetUser(userId string) (model.User, error) {
+func (userRepository *UserRepositoryImpl) GetUser(userId string) (model.User, error) {
 	var user model.User
-
-	if err := ur.Collection.First(&user, userId).Error; err != nil {
+	if err := userRepository.Db.First(&user, userId).Error; err != nil {
 		return user, err
 	}
-
 	return user, nil
 }
 
-func (ur *UserRepositoryImpl) StoreUser(user *model.User) error {
-	return ur.Collection.Create(&user).Error
+func (userRepository *UserRepositoryImpl) StoreUser(user *model.User) error {
+	tx := userRepository.Db.Begin()
+	if err := userRepository.Db.Create(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
-func (ur *UserRepositoryImpl) UpdateUser(user *model.User) error {
-	return ur.Collection.Save(&user).Error
+func (userRepository *UserRepositoryImpl) UpdateUser(user *model.User) error {
+	tx := userRepository.Db.Begin()
+	if err := userRepository.Db.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
-func (ur *UserRepositoryImpl) DeleteUser(user *model.User) error {
-	return ur.Collection.Delete(user).Error
+func (userRepository *UserRepositoryImpl) DeleteUser(user *model.User) error {
+	tx := userRepository.Db.Begin()
+	if err := userRepository.Db.Delete(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
-func (ur *UserRepositoryImpl) GeneratePassword(email string, password string) string {
+func (userRepository *UserRepositoryImpl) GeneratePassword(email string, password string) string {
 	strPassword := email + password + config.GetEnv("APP_KEY", "mysecretpassword")
 	var sha = sha1.New()
 	sha.Write([]byte(strPassword))
 	var encrypted = sha.Sum(nil)
-
 	return fmt.Sprintf("%x", encrypted)
 }
 
-func (ur *UserRepositoryImpl) LoginUser(loginRequest *model.LoginRequest) (model.User, error) {
+func (userRepository *UserRepositoryImpl) LoginUser(loginRequest *model.LoginRequest) (model.User, error) {
 	var user model.User
-
-	err := ur.Collection.Where(&model.User{
+	err := userRepository.Db.Where(&model.User{
 		Email:    loginRequest.Email,
-		Password: ur.GeneratePassword(loginRequest.Email, loginRequest.Password),
+		Password: userRepository.GeneratePassword(loginRequest.Email, loginRequest.Password),
 	}).First(&user).Error
-
 	if err != nil {
 		return user, errors.New("invalid credentials")
 	}
-
 	return user, nil
 }
 
-func (ur *UserRepositoryImpl) UpdateUserKey(user *model.User, key string) error {
+func (userRepository *UserRepositoryImpl) UpdateUserKey(user *model.User, key string) error {
+	tx := userRepository.Db.Begin()
 	user.Key = key
-
-	return ur.Collection.Save(&user).Error
+	if err := userRepository.Db.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
