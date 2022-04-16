@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
@@ -53,8 +52,6 @@ func (a *AuthImpl) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		a.SetUser(user)
-
-		fmt.Println(a.User)
 
 		return next(c)
 	}

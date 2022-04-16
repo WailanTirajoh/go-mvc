@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,16 +49,23 @@ type (
 )
 
 func NewJWT() JWTService {
+	jwtConfig := config.NewJwt()
+
+	lifetime, err := strconv.Atoi(jwtConfig.Lifetime)
+	if err != nil {
+		panic(err)
+	}
+
 	return &JWTServiceImpl{
 		Header: Header{
-			Algorithm: "HS256",
+			Algorithm: jwtConfig.Algorithm,
 			Type:      "JWT",
 		},
 		Payload: Payload{
 			IAT: time.Now().Unix(),
-			EXP: time.Now().Add(time.Second * 60).Unix(),
+			EXP: time.Now().Add(time.Second * 60 * time.Duration(lifetime)).Unix(),
 		},
-		Secret: config.GetEnv("APP_KEY", "mysecretpassword"),
+		Secret: jwtConfig.Secret,
 	}
 }
 
@@ -110,8 +118,16 @@ func (jwt *JWTServiceImpl) GenerateToken() (*JWTServiceImpl, error) {
 	return jwt, nil
 }
 
-func (jwt *JWTServiceImpl) ValidateToken(token string) error {
+func (jwt *JWTServiceImpl) ValidateToken(fullToken string) error {
 	var payload Payload
+
+	separateBearerToken := strings.Split(fullToken, " ")
+
+	if len(separateBearerToken) != 2 {
+		return errors.New("invalid token")
+	}
+
+	token := separateBearerToken[1]
 
 	// Validate token (must be header.payload.signature) type, check by length
 	split := strings.Split(token, ".")

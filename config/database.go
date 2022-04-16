@@ -8,25 +8,45 @@ import (
 	"gorm.io/gorm"
 )
 
+type DbConfig struct {
+	DB_CONNECTION string
+	DB_HOST       string
+	DB_PORT       string
+	DB_DATABASE   string
+	DB_USERNAME   string
+	DB_PASSWORD   string
+}
+
+func NewDatabase() DbConfig {
+	return DbConfig{
+		DB_CONNECTION: GetEnv("DB_CONNECTION", "mysql"),
+		DB_HOST:       GetEnv("DB_HOST", "127.0.0.1"),
+		DB_PORT:       GetEnv("DB_PORT", "3306"),
+		DB_DATABASE:   GetEnv("DB_DATABASE", "2022_godb"),
+		DB_USERNAME:   GetEnv("DB_USERNAME", "root"),
+		DB_PASSWORD:   GetEnv("DB_PASSWORD", ""),
+	}
+}
+
 func NewConnection() *gorm.DB {
 	var DB *gorm.DB
 	var err error
 
-	config := NewConfig()
+	dbConfig := NewDatabase()
 
-	switch connection := config.DB_CONNECTION; connection {
+	switch connection := dbConfig.DB_CONNECTION; connection {
 	case "mysql":
-		DB, err = mysqlConnection(config)
+		DB, err = mysqlConnection(dbConfig)
 		if err != nil {
 			panic(err)
 		}
 	case "pgsql":
-		DB, err = pgsqlConnection(config)
+		DB, err = pgsqlConnection(dbConfig)
 		if err != nil {
 			panic(err)
 		}
 	default:
-		DB, err = mysqlConnection(config)
+		DB, err = mysqlConnection(dbConfig)
 		if err != nil {
 			panic(err)
 		}
@@ -35,7 +55,7 @@ func NewConnection() *gorm.DB {
 	return DB
 }
 
-func mysqlConnection(config VarConfig) (*gorm.DB, error) {
+func mysqlConnection(config DbConfig) (*gorm.DB, error) {
 	DNS := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.DB_USERNAME,
 		config.DB_PASSWORD,
@@ -57,6 +77,6 @@ func mysqlConnection(config VarConfig) (*gorm.DB, error) {
 	return DB, nil
 }
 
-func pgsqlConnection(config VarConfig) (*gorm.DB, error) {
+func pgsqlConnection(config DbConfig) (*gorm.DB, error) {
 	panic("PGSQL connection is not ready yet.")
 }

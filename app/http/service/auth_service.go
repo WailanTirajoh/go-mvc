@@ -8,7 +8,6 @@ import (
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
-	"github.com/WailanTirajoh/go-simple-clean-architecture/config"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -56,7 +55,7 @@ func (authService *AuthServiceImpl) Login(loginRequest *model.LoginRequest) (str
 
 	jwt := NewJWT()
 
-	jwt.SetSecret(config.GetEnv("APP_KEY", "mysecretpassword")).
+	jwt.
 		SetSub(user.Key).
 		GenerateToken()
 
