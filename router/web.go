@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -10,14 +11,22 @@ func Setup(
 	authController *controller.AuthContoroller,
 ) *echo.Echo {
 	e := echo.New()
-	e.GET("/users", userController.Index)
-	e.GET("/users/:id", userController.Show)
-	e.POST("/users", userController.Store)
-	e.PUT("/users/:id", userController.Update)
-	e.DELETE("/users/:id", userController.Destroy)
 
-	e.POST("/login", authController.Login)
-	e.POST("/logout", authController.Logout)
+	auth := e.Group("/v1")
+	{
+		auth.Use(middleware.Authenticate)
+		auth.GET("/users", userController.Index)
+		auth.GET("/users/:id", userController.Show)
+		auth.POST("/users", userController.Store)
+		auth.PUT("/users/:id", userController.Update)
+		auth.DELETE("/users/:id", userController.Destroy)
+		auth.POST("/logout", authController.Logout)
+	}
+
+	guest := e.Group("/v1")
+	{
+		guest.POST("/login", authController.Login)
+	}
 
 	return e
 }
