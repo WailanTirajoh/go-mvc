@@ -34,7 +34,7 @@ func (userController *UserController) Show(c echo.Context) error {
 	user, err := userController.UserService.GetUser(c.Param("id"))
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
@@ -43,12 +43,12 @@ func (userController *UserController) Show(c echo.Context) error {
 func (userController *UserController) Store(c echo.Context) error {
 	userRequest := new(model.StoreUserRequest)
 	if err := c.Bind(&userRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := userController.UserService.StoreUser(userRequest)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
@@ -63,7 +63,7 @@ func (userController *UserController) Update(c echo.Context) error {
 	user, err := userController.UserService.UpdateUser(userRequest, c.Param("id"))
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
@@ -71,7 +71,7 @@ func (userController *UserController) Update(c echo.Context) error {
 
 func (userController *UserController) Destroy(c echo.Context) (err error) {
 	if err = userController.UserService.DeleteUser(c.Param("id")); err != nil {
-		return c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{

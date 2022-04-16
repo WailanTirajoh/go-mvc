@@ -35,6 +35,12 @@ type (
 
 		// To update user key after login
 		UpdateUserKey(user *model.User, key string) error
+
+		// To find user by key
+		FindUserByKey(user *model.User, key string) error
+
+		// To delete user key
+		DeleteUserKey(user *model.User, key string) error
 	}
 
 	UserRepositoryImpl struct {
@@ -120,5 +126,28 @@ func (userRepository *UserRepositoryImpl) UpdateUserKey(user *model.User, key st
 		return err
 	}
 	tx.Commit()
+	return nil
+}
+
+func (userRepository *UserRepositoryImpl) FindUserByKey(user *model.User, key string) error {
+	return userRepository.Db.Where(&model.User{
+		Key: key,
+	}).First(&user).Error
+}
+
+func (userRepository *UserRepositoryImpl) DeleteUserKey(user *model.User, key string) error {
+	err := userRepository.Db.Where(&model.User{
+		Key: key,
+	}).First(&user).Error
+
+	if err != nil {
+		return err
+	}
+
+	user.Key = ""
+	if err := userRepository.UpdateUser(user); err != nil {
+		return err
+	}
+
 	return nil
 }

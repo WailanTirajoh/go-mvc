@@ -1,6 +1,10 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
+	"strings"
+
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
@@ -14,7 +18,10 @@ type (
 		Login(loginRequest *model.LoginRequest) (string, error)
 
 		// To logout, return error
-		Logout(logoutRequest *model.LogoutRequest) error
+		Logout(token string) error
+
+		// To validate user token from string
+		ValidateUserToken(token string) (model.User, error)
 	}
 
 	AuthServiceImpl struct {
@@ -58,20 +65,46 @@ func (authService *AuthServiceImpl) Login(loginRequest *model.LoginRequest) (str
 	return token, nil
 }
 
-func (authService *AuthServiceImpl) Logout(logoutRequest *model.LogoutRequest) error {
-	validate := validator.New()
-	if err := validate.Struct(logoutRequest); err != nil {
-		validationErrors := err.(validator.ValidationErrors)
-		return validationErrors
-	}
+func (authService *AuthServiceImpl) Logout(token string) error {
+	var user model.User
+	var payload Payload
 
-	jwt := NewJWT()
+	split := strings.Split(token, ".")
+	bytePayload, err := helper.Base64StdDecoding(split[1])
 
-	jwt.SetSecret(config.GetEnv("APP_KEY", "mysecretpassword"))
-
-	// Check if token is valid
-	if err := jwt.ValidateToken(logoutRequest.Token); err != nil {
+	if err != nil {
 		return err
 	}
+
+	if err := json.Unmarshal(bytePayload, &payload); err != nil {
+		return err
+	}
+
+	if err := authService.UserRepository.DeleteUserKey(&user, payload.SUB); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (authService *AuthServiceImpl) ValidateUserToken(token string) (model.User, error) {
+	var user model.User
+	var payload Payload
+
+	split := strings.Split(token, ".")
+	bytePayload, err := helper.Base64StdDecoding(split[1])
+
+	if err != nil {
+		return user, err
+	}
+
+	if err := json.Unmarshal(bytePayload, &payload); err != nil {
+		return user, err
+	}
+
+	if err := authService.UserRepository.FindUserByKey(&user, payload.SUB); err != nil {
+		return user, errors.New("token is invalid")
+	}
+
+	return user, nil
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/config"
 )
 
 type (
@@ -56,6 +57,7 @@ func NewJWT() JWTService {
 			IAT: time.Now().Unix(),
 			EXP: time.Now().Add(time.Second * 60).Unix(),
 		},
+		Secret: config.GetEnv("APP_KEY", "mysecretpassword"),
 	}
 }
 

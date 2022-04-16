@@ -14,12 +14,15 @@ func Setup(
 
 	authRoute := e.Group("/v1")
 	{
-		authRoute.Use(middleware.Authenticate)
+		auth := middleware.NewAuth(authController)
+		authRoute.Use(auth.Authenticate)
+
 		authRoute.GET("/users", userController.Index)
 		authRoute.GET("/users/:id", userController.Show)
 		authRoute.POST("/users", userController.Store)
 		authRoute.PUT("/users/:id", userController.Update)
 		authRoute.DELETE("/users/:id", userController.Destroy)
+
 		authRoute.POST("/logout", authController.Logout)
 	}
 

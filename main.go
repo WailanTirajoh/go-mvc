@@ -2,9 +2,7 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
@@ -29,9 +27,6 @@ func main() {
 
 	// Setup Router
 	r := router.Setup(&userController, &authController)
-
-	// Seed random
-	rand.Seed(time.Now().UnixNano())
 
 	// Start App
 	log.Fatal(http.ListenAndServe(":9000", r))

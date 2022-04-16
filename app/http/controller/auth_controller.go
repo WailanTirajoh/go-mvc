@@ -19,15 +19,15 @@ func NewAuthController(authService *service.AuthService) AuthContoroller {
 	}
 }
 
-func (a *AuthContoroller) Login(c echo.Context) error {
+func (authController *AuthContoroller) Login(c echo.Context) error {
 	loginRequest := new(model.LoginRequest)
 	if err := c.Bind(&loginRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	token, err := a.AuthService.Login(loginRequest)
+	token, err := authController.AuthService.Login(loginRequest)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, helper.ErrorResponse(err.Error()))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
@@ -35,18 +35,16 @@ func (a *AuthContoroller) Login(c echo.Context) error {
 	}))
 }
 
-func (a *AuthContoroller) Logout(c echo.Context) error {
+func (authController *AuthContoroller) Logout(c echo.Context) error {
 	var err error
-	logoutRequest := new(model.LogoutRequest)
-	if err = c.Bind(&logoutRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, helper.ErrorResponse(err.Error()))
-	}
 
-	if err = a.AuthService.Logout(logoutRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, helper.ErrorResponse(err.Error()))
+	token := c.Request().Header.Get("token")
+
+	if err = authController.AuthService.Logout(token); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
-		"message": "Logout berhasil",
+		"message": "Logout success",
 	}))
 }

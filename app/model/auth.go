@@ -10,7 +10,7 @@ type (
 		Password string `json:"password" validate:"required"`
 	}
 
-	LogoutRequest struct {
-		Token string `json:"token" validate:"required"`
-	}
+	// LogoutRequest struct {
+	// 	Token string `json:"token" validate:"required"`
+	// }
 )
