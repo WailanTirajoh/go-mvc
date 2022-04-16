@@ -17,7 +17,6 @@ type (
 	}
 )
 
-// To initialize auth service
 func NewAuthService(userRepository *repository.UserRepository) AuthService {
 	return &AuthServiceImpl{
 		UserRepository: *userRepository,

@@ -8,20 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type VarConfig struct {
-	DB_CONNECTION string
-	DB_HOST       string
-	DB_PORT       string
-	DB_DATABASE   string
-	DB_USERNAME   string
-	DB_PASSWORD   string
-}
-
-func SetupConnection() *gorm.DB {
+func NewConnection() *gorm.DB {
 	var DB *gorm.DB
 	var err error
 
-	config := initConfig()
+	config := NewConfig()
 
 	switch connection := config.DB_CONNECTION; connection {
 	case "mysql":
@@ -42,17 +33,6 @@ func SetupConnection() *gorm.DB {
 	}
 
 	return DB
-}
-
-func initConfig() VarConfig {
-	return VarConfig{
-		DB_CONNECTION: GetEnv("DB_CONNECTION", "mysql"),
-		DB_HOST:       GetEnv("DB_HOST", "127.0.0.1"),
-		DB_PORT:       GetEnv("DB_PORT", "3306"),
-		DB_DATABASE:   GetEnv("DB_DATABASE", "2022_godb"),
-		DB_USERNAME:   GetEnv("DB_USERNAME", "root"),
-		DB_PASSWORD:   GetEnv("DB_PASSWORD", ""),
-	}
 }
 
 func mysqlConnection(config VarConfig) (*gorm.DB, error) {

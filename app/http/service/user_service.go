@@ -31,7 +31,6 @@ type (
 	}
 )
 
-// To initialize user service
 func NewUserService(userRepository *repository.UserRepository) UserService {
 	return &UserServiceImpl{
 		UserRepository: *userRepository,

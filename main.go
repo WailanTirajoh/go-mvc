@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	db := config.SetupConnection()
+	db := config.NewConnection()
 
 	// Setup Repository
 	userRepository := repository.NewUserRepository(db)
