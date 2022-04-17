@@ -38,7 +38,7 @@ func (authController *AuthContoroller) Login(c echo.Context) error {
 func (authController *AuthContoroller) Logout(c echo.Context) error {
 	var err error
 
-	token := c.Request().Header.Get("token")
+	token := c.Request().Header.Get("Authorization")
 
 	if err = authController.AuthService.Logout(token); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -46,5 +46,21 @@ func (authController *AuthContoroller) Logout(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
 		"message": "Logout success",
+	}))
+}
+
+func (authController *AuthContoroller) Register(c echo.Context) error {
+	registerRequest := new(model.RegisterRequest)
+	if err := c.Bind(&registerRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	user, err := authController.AuthService.RegisterUser(registerRequest)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
+		"message": "Register success for user " + user.FirstName + ", please login.",
 	}))
 }

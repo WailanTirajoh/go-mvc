@@ -10,7 +10,7 @@ type (
 		FirstName string    `json:"first_name" gorm:"not null;type:varchar(191)"`
 		LastName  string    `json:"last_name" gorm:"not null;type:varchar(191)"`
 		Email     string    `json:"email" gorm:"uniqueIndex:email;index;not null"`
-		Key       string    `json:"token" gorm:"uniqueIndex:token;index;not null"`
+		Key       string    `json:"token" gorm:"uniqueIndex:token;index"`
 		Password  string    `json:"password" gorm:"not null;type:varchar(191)"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`

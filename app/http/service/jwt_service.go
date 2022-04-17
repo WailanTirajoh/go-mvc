@@ -29,11 +29,14 @@ type (
 		ValidateToken(token string) error
 	}
 
+	Payload map[string]interface{}
+
 	JWTServiceImpl struct {
-		Header  Header
-		Payload Payload
-		Secret  string
-		Token   string
+		Header      Header
+		Payload     Payload
+		BasePayload BasePayload
+		Secret      string
+		Token       string
 	}
 
 	Header struct {
@@ -41,7 +44,7 @@ type (
 		Type      string `json:"typ"`
 	}
 
-	Payload struct {
+	BasePayload struct {
 		IAT int64  `json:"iat"`
 		SUB string `json:"sub"`
 		EXP int64  `json:"exp"`
@@ -61,7 +64,7 @@ func NewJWT() JWTService {
 			Algorithm: jwtConfig.Algorithm,
 			Type:      "JWT",
 		},
-		Payload: Payload{
+		BasePayload: BasePayload{
 			IAT: time.Now().Unix(),
 			EXP: time.Now().Add(time.Second * 60 * time.Duration(lifetime)).Unix(),
 		},
@@ -89,29 +92,42 @@ func (jwt *JWTServiceImpl) SetPayload(payload Payload) *JWTServiceImpl {
 }
 
 func (jwt *JWTServiceImpl) SetSub(sub string) *JWTServiceImpl {
-	jwt.Payload.SUB = sub
+	jwt.BasePayload.SUB = sub
 
 	return jwt
 }
 
 func (jwt *JWTServiceImpl) SetExpired(unixExpDate int64) *JWTServiceImpl {
-	jwt.Payload.EXP = unixExpDate
+	jwt.BasePayload.EXP = unixExpDate
 	return jwt
 }
 
 func (jwt *JWTServiceImpl) GenerateToken() (*JWTServiceImpl, error) {
+	var theBasePayload Payload
 	headerJson, err := json.Marshal(jwt.Header)
 	if err != nil {
 		return jwt, err
 	}
 
-	payloadJson, err := json.Marshal(jwt.Payload)
+	basePayloadJson, err := json.Marshal(jwt.BasePayload)
 	if err != nil {
 		return jwt, err
 	}
 
-	base64Header := helper.Base64StdEncoding(string(headerJson))
-	base64Payload := helper.Base64StdEncoding(string(payloadJson))
+	err = json.Unmarshal([]byte(basePayloadJson), &theBasePayload)
+	if err != nil {
+		return jwt, err
+	}
+
+	mergedPayload := helper.MergeMaps(jwt.Payload, theBasePayload)
+
+	payloadJson, err := json.Marshal(mergedPayload)
+	if err != nil {
+		return jwt, err
+	}
+
+	base64Header := helper.Base64UrlEncoding(string(headerJson))
+	base64Payload := helper.Base64UrlEncoding(string(payloadJson))
 
 	jwt.Token = generateSignature(base64Header, base64Payload, jwt.Secret)
 
@@ -119,7 +135,7 @@ func (jwt *JWTServiceImpl) GenerateToken() (*JWTServiceImpl, error) {
 }
 
 func (jwt *JWTServiceImpl) ValidateToken(fullToken string) error {
-	var payload Payload
+	var payload BasePayload
 
 	separateBearerToken := strings.Split(fullToken, " ")
 
@@ -144,7 +160,7 @@ func (jwt *JWTServiceImpl) ValidateToken(fullToken string) error {
 
 	// Token is valid at this step
 	// Now check the token expired date
-	bytePayload, err := helper.Base64StdDecoding(split[1])
+	bytePayload, err := helper.Base64UrlDecoding(split[1])
 
 	if err != nil {
 		return err
@@ -165,7 +181,7 @@ func generateSignature(base64Header string, base64Payload string, secret string)
 	hashSignature := hmac.New(sha256.New, []byte(secret))
 	hashSignature.Write([]byte(base64Header + "." + base64Payload))
 
-	signature := helper.Base64StdEncoding(string(hashSignature.Sum(nil)))
+	signature := helper.Base64UrlEncoding(string(hashSignature.Sum(nil)))
 
 	return base64Header + "." + base64Payload + "." + signature
 }

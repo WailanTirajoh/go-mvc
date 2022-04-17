@@ -29,6 +29,7 @@ func Setup(
 	guestRoute := e.Group("/v1")
 	{
 		guestRoute.POST("/login", authController.Login)
+		guestRoute.POST("/register", authController.Register)
 	}
 
 	return e

@@ -33,7 +33,7 @@ func NewAuth(ac *controller.AuthContoroller) Auth {
 
 func (a *AuthImpl) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Request().Header.Get("token")
+		token := c.Request().Header.Get("Authorization")
 
 		if token == "" {
 			return echo.NewHTTPError(http.StatusUnauthorized, "token is required")

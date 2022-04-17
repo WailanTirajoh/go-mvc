@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
@@ -21,6 +22,9 @@ type (
 
 		// To validate user token from string
 		ValidateUserToken(token string) (model.User, error)
+
+		// To register user
+		RegisterUser(registerRequest *model.RegisterRequest) (model.User, error)
 	}
 
 	AuthServiceImpl struct {
@@ -56,6 +60,10 @@ func (authService *AuthServiceImpl) Login(loginRequest *model.LoginRequest) (str
 	jwt := NewJWT()
 
 	jwt.
+		SetPayload(Payload{
+			"id":    user.ID,
+			"email": user.Email,
+		}).
 		SetSub(user.Key).
 		GenerateToken()
 
@@ -66,10 +74,10 @@ func (authService *AuthServiceImpl) Login(loginRequest *model.LoginRequest) (str
 
 func (authService *AuthServiceImpl) Logout(token string) error {
 	var user model.User
-	var payload Payload
+	var payload BasePayload
 
 	split := strings.Split(token, ".")
-	bytePayload, err := helper.Base64StdDecoding(split[1])
+	bytePayload, err := helper.Base64UrlDecoding(split[1])
 
 	if err != nil {
 		return err
@@ -86,12 +94,37 @@ func (authService *AuthServiceImpl) Logout(token string) error {
 	return nil
 }
 
+func (authService *AuthServiceImpl) RegisterUser(registerRequest *model.RegisterRequest) (model.User, error) {
+	var user model.User
+	var err error
+
+	validate := validator.New()
+	if err = validate.Struct(registerRequest); err != nil {
+		validationErrors := err.(validator.ValidationErrors)
+		return user, validationErrors
+	}
+
+	user = model.User{
+		FirstName: registerRequest.FirstName,
+		LastName:  registerRequest.LastName,
+		Email:     registerRequest.Email,
+		Password:  authService.UserRepository.GeneratePassword(registerRequest.Email, registerRequest.Password),
+		CreatedAt: time.Now(),
+	}
+
+	if err = authService.UserRepository.StoreUser(&user); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (authService *AuthServiceImpl) ValidateUserToken(token string) (model.User, error) {
 	var user model.User
 	var payload Payload
 
 	split := strings.Split(token, ".")
-	bytePayload, err := helper.Base64StdDecoding(split[1])
+	bytePayload, err := helper.Base64UrlDecoding(split[1])
 
 	if err != nil {
 		return user, err
@@ -101,7 +134,17 @@ func (authService *AuthServiceImpl) ValidateUserToken(token string) (model.User,
 		return user, err
 	}
 
-	if err := authService.UserRepository.FindUserByKey(&user, payload.SUB); err != nil {
+	sub, err := helper.GetStrKey(payload, "sub")
+	if err != nil {
+		return user, err
+	}
+
+	email, err := helper.GetStrKey(payload, "email")
+	if err != nil {
+		return user, err
+	}
+
+	if err := authService.UserRepository.FindUserByEmailKey(&user, sub, email); err != nil {
 		return user, errors.New("token is invalid")
 	}
 

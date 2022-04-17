@@ -37,7 +37,7 @@ type (
 		UpdateUserKey(user *model.User, key string) error
 
 		// To find user by key
-		FindUserByKey(user *model.User, key string) error
+		FindUserByEmailKey(user *model.User, key string, email string) error
 
 		// To delete user key
 		DeleteUserKey(user *model.User, key string) error
@@ -129,9 +129,10 @@ func (userRepository *UserRepositoryImpl) UpdateUserKey(user *model.User, key st
 	return nil
 }
 
-func (userRepository *UserRepositoryImpl) FindUserByKey(user *model.User, key string) error {
+func (userRepository *UserRepositoryImpl) FindUserByEmailKey(user *model.User, key string, email string) error {
 	return userRepository.Db.Where(&model.User{
-		Key: key,
+		Key:   key,
+		Email: email,
 	}).First(&user).Error
 }
 
