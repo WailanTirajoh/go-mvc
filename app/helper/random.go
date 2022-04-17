@@ -6,6 +6,7 @@ import (
 	"unsafe"
 )
 
+// SRC: https://stackoverflow.com/a/31832326/11942385
 func RandStringBytesMaskImprSrcUnsafe(n int) string {
 	const (
 		letterBytes   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"

@@ -2,6 +2,7 @@ package helper
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 )
 
@@ -20,4 +21,17 @@ func GetUserPayload(token string) (map[string]interface{}, error) {
 	}
 
 	return payload, nil
+}
+
+func GetStrKey(m map[string]interface{}, key string) (string, error) {
+	value, exists := m[key]
+	if !exists {
+		return "", errors.New(key + " is required")
+	}
+	strVal, ok := value.(string)
+	if !ok {
+		return "", errors.New("error on " + key)
+	}
+
+	return strVal, nil
 }
