@@ -17,8 +17,8 @@ type (
 	}
 
 	StoreUserRequest struct {
-		FirstName string `json:"first_name" validate:"required"`
-		LastName  string `json:"last_name" validate:"required"`
+		FirstName string `json:"first_name" tag:"first_name" validate:"required,alpha"`
+		LastName  string `json:"last_name" validate:"required,alpha"`
 		Email     string `json:"email" validate:"required,email"`
 		Password  string `json:"password" validate:"required"`
 	}

@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/request"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/service"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,6 +51,10 @@ func (userController *UserController) Store(c echo.Context) error {
 
 	user, err := userController.UserService.StoreUser(userRequest)
 	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			c.JSON(http.StatusBadRequest, helper.ValidationError(request.Output(ve)))
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -63,6 +70,10 @@ func (userController *UserController) Update(c echo.Context) error {
 	user, err := userController.UserService.UpdateUser(userRequest, c.Param("id"))
 
 	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			c.JSON(http.StatusBadRequest, helper.ValidationError(request.Output(ve)))
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

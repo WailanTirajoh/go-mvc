@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/request"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
 	"github.com/go-playground/validator/v10"
 )
@@ -56,7 +57,7 @@ func (userService *UserServiceImpl) StoreUser(userRequest *model.StoreUserReques
 	var user model.User
 	var err error
 
-	validate := validator.New()
+	validate := request.NewValidator()
 	if err = validate.Struct(userRequest); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return user, validationErrors
@@ -80,7 +81,7 @@ func (userService *UserServiceImpl) UpdateUser(userRequest *model.UpdateUserRequ
 	var user model.User
 	var err error
 
-	validate := validator.New()
+	validate := request.NewValidator()
 	if err = validate.Struct(userRequest); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return user, validationErrors
