@@ -36,6 +36,10 @@ type (
 	}
 )
 
+func NewUser() User {
+	return User{}
+}
+
 func (u *User) Response() UserResponse {
 	return UserResponse{
 		ID:        u.ID,

@@ -104,13 +104,12 @@ func (authService *AuthServiceImpl) RegisterUser(registerRequest *model.Register
 		return user, validationErrors
 	}
 
-	user = model.User{
-		FirstName: registerRequest.FirstName,
-		LastName:  registerRequest.LastName,
-		Email:     registerRequest.Email,
-		Password:  authService.UserRepository.GeneratePassword(registerRequest.Email, registerRequest.Password),
-		CreatedAt: time.Now(),
-	}
+	user = model.NewUser()
+	user.FirstName = registerRequest.FirstName
+	user.LastName = registerRequest.LastName
+	user.Email = registerRequest.Email
+	user.Password = authService.UserRepository.GeneratePassword(registerRequest.Email, registerRequest.Password)
+	user.CreatedAt = time.Now()
 
 	if err = authService.UserRepository.StoreUser(&user); err != nil {
 		return user, err
@@ -121,16 +120,9 @@ func (authService *AuthServiceImpl) RegisterUser(registerRequest *model.Register
 
 func (authService *AuthServiceImpl) ValidateUserToken(token string) (model.User, error) {
 	var user model.User
-	var payload Payload
 
-	split := strings.Split(token, ".")
-	bytePayload, err := helper.Base64UrlDecoding(split[1])
-
+	payload, err := helper.GetUserPayload(token)
 	if err != nil {
-		return user, err
-	}
-
-	if err := json.Unmarshal(bytePayload, &payload); err != nil {
 		return user, err
 	}
 

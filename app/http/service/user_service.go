@@ -62,13 +62,12 @@ func (userService *UserServiceImpl) StoreUser(userRequest *model.StoreUserReques
 		return user, validationErrors
 	}
 
-	user = model.User{
-		FirstName: userRequest.FirstName,
-		LastName:  userRequest.LastName,
-		Email:     userRequest.Email,
-		Password:  userService.UserRepository.GeneratePassword(userRequest.Email, userRequest.Password),
-		CreatedAt: time.Now(),
-	}
+	user = model.NewUser()
+	user.FirstName = userRequest.FirstName
+	user.LastName = userRequest.LastName
+	user.Email = userRequest.Email
+	user.Password = userService.UserRepository.GeneratePassword(userRequest.Email, userRequest.Password)
+	user.CreatedAt = time.Now()
 
 	if err = userService.UserRepository.StoreUser(&user); err != nil {
 		return user, err
@@ -93,15 +92,14 @@ func (userService *UserServiceImpl) UpdateUser(userRequest *model.UpdateUserRequ
 		return user, err
 	}
 
-	user = model.User{
-		ID:        theuser.ID,
-		FirstName: userRequest.FirstName,
-		LastName:  userRequest.LastName,
-		Email:     theuser.Email,
-		Password:  theuser.Password,
-		CreatedAt: theuser.CreatedAt,
-		UpdatedAt: time.Now(),
-	}
+	user = model.NewUser()
+	user.ID = theuser.ID
+	user.FirstName = userRequest.FirstName
+	user.LastName = userRequest.LastName
+	user.Email = theuser.Email
+	user.Password = theuser.Password
+	user.CreatedAt = theuser.CreatedAt
+	user.UpdatedAt = time.Now()
 
 	if err = userService.UserRepository.UpdateUser(&user); err != nil {
 		return user, err
