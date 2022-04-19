@@ -1,14 +1,12 @@
 package controller
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
-	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/request"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/service"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
-	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,7 +22,11 @@ func NewUserController(userService *service.UserService) UserController {
 
 func (userController *UserController) Index(c echo.Context) error {
 	users := userController.UserService.GetUsers()
-
+	auth, err := helper.AuthObject(c.Request().Header.Get("auth"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	fmt.Println(auth)
 	var usersResponse []model.UserResponse
 	for _, user := range users {
 		usersResponse = append(usersResponse, user.Response())
@@ -46,16 +48,12 @@ func (userController *UserController) Show(c echo.Context) error {
 func (userController *UserController) Store(c echo.Context) error {
 	userRequest := new(model.StoreUserRequest)
 	if err := c.Bind(&userRequest); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	user, err := userController.UserService.StoreUser(userRequest)
 	if err != nil {
-		var ve validator.ValidationErrors
-		if errors.As(err, &ve) {
-			c.JSON(http.StatusBadRequest, helper.ValidationError(request.Output(ve)))
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
@@ -64,17 +62,13 @@ func (userController *UserController) Store(c echo.Context) error {
 func (userController *UserController) Update(c echo.Context) error {
 	userRequest := new(model.UpdateUserRequest)
 	if err := c.Bind(&userRequest); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	user, err := userController.UserService.UpdateUser(userRequest, c.Param("id"))
 
 	if err != nil {
-		var ve validator.ValidationErrors
-		if errors.As(err, &ve) {
-			c.JSON(http.StatusBadRequest, helper.ValidationError(request.Output(ve)))
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
@@ -82,7 +76,7 @@ func (userController *UserController) Update(c echo.Context) error {
 
 func (userController *UserController) Destroy(c echo.Context) (err error) {
 	if err = userController.UserService.DeleteUser(c.Param("id")); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{

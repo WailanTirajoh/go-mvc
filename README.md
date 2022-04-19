@@ -23,3 +23,20 @@ exit;
 go get .
 go run .
 ```
+
+## Code Pattern
+This code style follow repository pattern, bootstrap with dependency injection from config, to repository, to service, to controller that will be consume by routes.
+
+
+## Whats includes?
+- Router (Echo)
+- Middleware (Echo)
+- Controller
+- Model
+- Request Handler
+- JWT Authentication
+- 
+
+## What will be include ?
+- Gates Permission / Authorization
+- 

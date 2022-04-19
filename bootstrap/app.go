@@ -1,8 +1,10 @@
 package bootstrap
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
@@ -12,7 +14,11 @@ import (
 )
 
 func NewApp() {
-	db := config.NewConnection()
+	app := config.NewAppConfig()
+	db, err := config.NewConnection()
+	if err != nil {
+		panic(err)
+	}
 
 	// Setup Repository
 	userRepository := repository.NewUserRepository(db)
@@ -29,5 +35,7 @@ func NewApp() {
 	r := router.Setup(&userController, &authController)
 
 	// Start App
-	log.Fatal(http.ListenAndServe(":9000", r))
+	fmt.Println("Running the server on port", app.APP_PORT)
+	strPort := strconv.FormatInt(app.APP_PORT, 10)
+	log.Fatal(http.ListenAndServe(":"+strPort, r))
 }

@@ -28,7 +28,7 @@ func NewDatabase() DbConfig {
 	}
 }
 
-func NewConnection() *gorm.DB {
+func NewConnection() (*gorm.DB, error) {
 	var DB *gorm.DB
 	var err error
 
@@ -38,21 +38,21 @@ func NewConnection() *gorm.DB {
 	case "mysql":
 		DB, err = mysqlConnection(dbConfig)
 		if err != nil {
-			panic(err)
+			return DB, err
 		}
 	case "pgsql":
 		DB, err = pgsqlConnection(dbConfig)
 		if err != nil {
-			panic(err)
+			return DB, err
 		}
 	default:
 		DB, err = mysqlConnection(dbConfig)
 		if err != nil {
-			panic(err)
+			return DB, err
 		}
 	}
 
-	return DB
+	return DB, nil
 }
 
 func mysqlConnection(config DbConfig) (*gorm.DB, error) {

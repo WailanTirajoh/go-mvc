@@ -99,7 +99,7 @@ func (userRepository *UserRepositoryImpl) DeleteUser(user *model.User) error {
 }
 
 func (userRepository *UserRepositoryImpl) GeneratePassword(email string, password string) string {
-	strPassword := email + password + config.GetEnv("APP_KEY", "mysecretpassword")
+	strPassword := email + password + string(config.GetEnv("APP_KEY", "mysecretpassword"))
 	var sha = sha1.New()
 	sha.Write([]byte(strPassword))
 	var encrypted = sha.Sum(nil)

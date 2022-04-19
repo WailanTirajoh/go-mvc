@@ -27,7 +27,7 @@ func (authController *AuthContoroller) Login(c echo.Context) error {
 
 	token, err := authController.AuthService.Login(loginRequest)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
@@ -41,7 +41,7 @@ func (authController *AuthContoroller) Logout(c echo.Context) error {
 	token := c.Request().Header.Get("Authorization")
 
 	if err = authController.AuthService.Logout(token); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
@@ -57,7 +57,7 @@ func (authController *AuthContoroller) Register(c echo.Context) error {
 
 	user, err := authController.AuthService.RegisterUser(registerRequest)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return helper.HandleError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{

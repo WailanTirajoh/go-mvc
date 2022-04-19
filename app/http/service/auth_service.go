@@ -8,6 +8,7 @@ import (
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/repository"
+	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/request"
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/model"
 	"github.com/go-playground/validator/v10"
 )
@@ -42,7 +43,7 @@ func (authService *AuthServiceImpl) Login(loginRequest *model.LoginRequest) (str
 	var user model.User
 	var err error
 
-	validate := validator.New()
+	validate := request.NewValidator()
 	if err := validate.Struct(loginRequest); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return "", validationErrors
@@ -98,7 +99,7 @@ func (authService *AuthServiceImpl) RegisterUser(registerRequest *model.Register
 	var user model.User
 	var err error
 
-	validate := validator.New()
+	validate := request.NewValidator()
 	if err = validate.Struct(registerRequest); err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 		return user, validationErrors

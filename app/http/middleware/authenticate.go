@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/http/controller"
@@ -52,6 +53,12 @@ func (a *AuthImpl) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		a.SetUser(user)
+
+		userJson, err := json.Marshal(user)
+		if err != nil {
+			panic(err)
+		}
+		c.Request().Header.Set("Auth", string(userJson))
 
 		return next(c)
 	}
