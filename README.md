@@ -39,4 +39,6 @@ This code style follow repository pattern, bootstrap with dependency injection f
 
 ## What will be include ?
 - Gates Permission / Authorization
-- 
+- Event & listener
+- Job & queue
+- Tracer
