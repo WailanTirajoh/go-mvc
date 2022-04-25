@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/WailanTirajoh/go-simple-clean-architecture/app/helper"
@@ -22,17 +21,18 @@ func NewUserController(userService *service.UserService) UserController {
 
 func (userController *UserController) Index(c echo.Context) error {
 	users := userController.UserService.GetUsers()
-	auth, err := helper.AuthObject(c.Request().Header.Get("auth"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	fmt.Println(auth)
+	// auth, err := helper.AuthObject(c.Request().Header.Get("auth"))
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	// }
 	var usersResponse []model.UserResponse
 	for _, user := range users {
 		usersResponse = append(usersResponse, user.Response())
 	}
 
-	return c.JSON(http.StatusOK, helper.SuccessResponse(usersResponse))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]interface{}{
+		"users": usersResponse,
+	}))
 }
 
 func (userController *UserController) Show(c echo.Context) error {
@@ -42,7 +42,9 @@ func (userController *UserController) Show(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]interface{}{
+		"user": user.Response(),
+	}))
 }
 
 func (userController *UserController) Store(c echo.Context) error {
@@ -56,7 +58,9 @@ func (userController *UserController) Store(c echo.Context) error {
 		return helper.HandleError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]interface{}{
+		"user": user.Response(),
+	}))
 }
 
 func (userController *UserController) Update(c echo.Context) error {
@@ -71,7 +75,9 @@ func (userController *UserController) Update(c echo.Context) error {
 		return helper.HandleError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, helper.SuccessResponse(user.Response()))
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]interface{}{
+		"user": user.Response(),
+	}))
 }
 
 func (userController *UserController) Destroy(c echo.Context) (err error) {
@@ -79,7 +85,7 @@ func (userController *UserController) Destroy(c echo.Context) (err error) {
 		return helper.HandleError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]string{
+	return c.JSON(http.StatusOK, helper.SuccessResponse(map[string]interface{}{
 		"Message": "User deleted successfully",
 	}))
 }

@@ -72,6 +72,7 @@ func mysqlConnection(config DbConfig) (*gorm.DB, error) {
 
 	DB.AutoMigrate(
 		model.User{},
+		model.Role{},
 	)
 
 	return DB, nil
